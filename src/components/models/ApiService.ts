@@ -1,4 +1,4 @@
-import { IApi, IProduct, IOrderData, IOrderResult } from "../../types";
+import { IApi, IProduct, IOrderData, IOrderResult, IProductListResponse } from "../../types";
 
 export class ApiService {
   constructor(private api: IApi) {}
@@ -8,15 +8,22 @@ export class ApiService {
    * @returns Promise с массивом товаров
    */
   getProductList(): Promise<IProduct[]> {
-    return this.api.get<IProduct[]>("/product");
+    const url = "/product";
+    console.log("[ApiService] Выполняется GET запрос на:", url);
+
+    return this.api.get<IProductListResponse>(url).then((res) => {
+      console.log("[ApiService] Ответ сервера:", res);
+      return res.items; // возвращаем корректный массив товаров
+    });
   }
 
   /**
    * Отправляет заказ на сервер
-   * @param order - данные заказа
-   * @returns Promise с результатом заказа
    */
   submitOrder(order: IOrderData): Promise<IOrderResult> {
-    return this.api.post<IOrderResult>("/order", order);
+    const url = "/order";
+    console.log("[ApiService] Выполняется POST запрос на:", url);
+
+    return this.api.post<IOrderResult>(url, order);
   }
 }

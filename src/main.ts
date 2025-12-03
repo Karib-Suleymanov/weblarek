@@ -14,18 +14,15 @@ const buyerModel = new BuyerModel();
 
 // === Тестирование ProductsModel ===
 try {
-  // Заполняем товары из локального датасета
   if (apiProducts.items.length > 0) {
     productsModel.setItems(apiProducts.items);
     console.log("[ProductsModel] Массив товаров из каталога:", productsModel.getItems());
     console.log("[ProductsModel] Количество товаров:", productsModel.getItems().length);
 
-    // Тестируем getProductById
     const firstProduct = apiProducts.items[0];
     const testProduct = productsModel.getProductById(firstProduct.id);
     console.log("[ProductsModel] Товар по ID:", testProduct);
 
-    // Выбираем товар
     productsModel.setSelectedItem(firstProduct);
     console.log("[ProductsModel] Выбранный товар:", productsModel.getSelectedItem());
   } else {
@@ -41,8 +38,9 @@ try {
   if (products.length >= 2) {
     cartModel.addItem(products[0]);
     cartModel.addItem(products[1]);
+
     console.log("[CartModel] Товары в корзине:", cartModel.getItems());
-    console.log("[CartModel] Количество товаров в корзине:", cartModel.getTotalCount());
+    console.log("[CartModel] Количество товаров:", cartModel.getTotalCount());
     console.log("[CartModel] Общая стоимость корзины:", cartModel.getTotalPrice());
     console.log("[CartModel] Товар 1 в корзине?", cartModel.contains(products[0].id));
 
@@ -58,7 +56,6 @@ try {
 
 // === Тестирование BuyerModel ===
 try {
-  // Частичное заполнение (если модель поддерживает)
   buyerModel.setData({
     email: "test@mail.ru",
     payment: "card",
@@ -67,15 +64,13 @@ try {
   });
   console.log("[BuyerModel] Данные покупателя после заполнения:", buyerModel.getData());
 
-  // Валидация
   const validationErrors = buyerModel.validate();
   if (Object.keys(validationErrors).length === 0) {
     console.log("[BuyerModel] Валидация пройдена успешно");
   } else {
-    console.log("[BuyerModel] Ошибки валидации:", validationErrors);
+    console.warn("[BuyerModel] Ошибки валидации:", validationErrors);
   }
 
-  // Очистка
   buyerModel.clear();
   console.log("[BuyerModel] После очистки:", buyerModel.getData());
 } catch (error) {
@@ -87,9 +82,15 @@ try {
   const api = new Api(API_URL);
   const apiService = new ApiService(api);
 
+  // console.log("[API] URL запроса:", API_URL + "/product");
+  // console.log("[API] VITE_API_ORIGIN:", import.meta.env.VITE_API_ORIGIN);
+
   apiService
     .getProductList()
     .then((products) => {
+      if (!Array.isArray(products)) {
+        throw new Error("[API] Ответ сервера не массив товаров!");
+      }
       console.log("[API] Товары с сервера:", products);
 
       productsModel.setItems(products);
@@ -97,7 +98,10 @@ try {
     })
     .catch((error) => {
       console.error("[API] Ошибка получения товаров:", error);
-      // Здесь можно добавить fallback: показать локальные товары или сообщение пользователю
+      console.warn("[API] Используем локальный набор товаров как fallback");
+      if (Array.isArray(apiProducts.items) && apiProducts.items.length > 0) {
+        productsModel.setItems(apiProducts.items);
+      }
     });
 } catch (error) {
   console.error("[API] Ошибка инициализации API:", error);

@@ -1,5 +1,4 @@
-import { IBuyer, TPayment, ValidationErrors } from "../../types";
-
+import { IBuyer, ValidationErrors } from "../../types";
 
 /**
  * Модель для работы с данными покупателя
@@ -24,33 +23,23 @@ export class BuyerModel {
   /**
    * Устанавливает данные покупателя (частично или полностью)
    * @param data - объект с полями IBuyer (можно передать не все поля)
-   * @throws {Error} Если data не является объектом
    */
   setData(data: Partial<IBuyer>): void {
     if (!data || typeof data !== "object") {
       throw new Error("Не объект");
     }
 
-    // Обновляем только переданные поля
+    // Обновляем только переданные поля (пустые строки тоже допустимы)
     this.data = {
       ...this.data,
       ...data
     };
 
-    // Проверяем обязательные строковые поля (только если они были переданы)
-    if (data.email !== undefined && !data.email) {
-      throw new Error("Email обязателен для заполнения");
-    }
-    if (data.phone !== undefined && !data.phone) {
-      throw new Error("Телефон обязателен для заполнения");
-    }
-    if (data.address !== undefined && !data.address) {
-      throw new Error("Адрес обязателен для заполнения");
-    }
-
-    // Если передано поле payment — проверяем его допустимость
+    // Единственная проверка: payment должен быть валидным, если был передан
     if (data.payment !== undefined) {
-      if (!['cash', 'card', 'not_selected'].includes(data.payment)) {
+      const valid = ['cash', 'card', 'not_selected'];
+
+      if (!valid.includes(data.payment)) {
         throw new Error("Недопустимое значение payment");
       }
     }
@@ -58,7 +47,6 @@ export class BuyerModel {
 
   /**
    * Возвращает текущие данные покупателя
-   * @returns {IBuyer} Полный объект с данными покупателя
    */
   getData(): IBuyer {
     return this.data;
@@ -66,7 +54,7 @@ export class BuyerModel {
 
   /**
    * Валидирует данные покупателя
-   * @returns {ValidationErrors} Объект с сообщениями об ошибках (пустой, если всё валидно)
+   * Проверяет обязательные поля
    */
   validate(): ValidationErrors {
     const errors: ValidationErrors = {};
@@ -91,8 +79,7 @@ export class BuyerModel {
   }
 
   /**
-   * Очищает все данные покупателя
-   * Устанавливает payment в 'not_selected', остальные поля — в пустые строки
+   * Полная очистка данных покупателя
    */
   clear(): void {
     this.data = {

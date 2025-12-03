@@ -21,6 +21,8 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
+    /* Recommended for cross-OS consistency */
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src"]
 }

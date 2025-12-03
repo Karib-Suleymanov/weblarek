@@ -14,6 +14,14 @@ export interface IProduct {
     price: number | null;
 }
 
+/**
+ * Ответ API при запросе списка товаров
+ */
+export interface IProductListResponse {
+    total: number;
+    items: IProduct[];
+}
+
 export type TPayment = 'cash' | 'card' | 'not_selected';
 
 export interface IBuyer {
@@ -22,6 +30,7 @@ export interface IBuyer {
     phone: string;
     address: string;
 }
+
 // Наследуем IBuyer, добавляем специфические поля заказа
 export interface IOrderData extends IBuyer {
     total: number;
