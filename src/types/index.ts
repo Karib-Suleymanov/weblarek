@@ -1,45 +1,50 @@
+// Методы POST для API
 export type ApiPostMethods = 'POST' | 'PUT' | 'DELETE';
 
+// API
 export interface IApi {
-    get<T extends object>(uri: string): Promise<T>;
-    post<T extends object>(uri: string, data: object, method?: ApiPostMethods): Promise<T>;
+  get<T extends object>(uri: string): Promise<T>;
+  post<T extends object>(uri: string, data: object, method?: ApiPostMethods): Promise<T>;
 }
 
+// Товар
 export interface IProduct {
-    id: string;
-    description: string;
-    image: string;
-    title: string;
-    category: string;
-    price: number | null;
+  id: string;
+  description: string;
+  image: string;
+  title: string;
+  category: string;
+  price: number | null;
 }
 
-/**
- * Ответ API при запросе списка товаров
- */
+// Список товаров с сервера
 export interface IProductListResponse {
-    total: number;
-    items: IProduct[];
+  total: number;
+  items: IProduct[];
 }
 
-export type TPayment = 'cash' | 'card' | 'not_selected';
+// Способ оплаты
+export type TPayment = 'online' | 'upon-receipt' | undefined;
 
+// Покупатель
 export interface IBuyer {
-    payment: TPayment;
-    email: string;
-    phone: string;
-    address: string;
+  payment?: TPayment;
+  email: string;
+  phone: string;
+  address: string;
 }
 
-// Наследуем IBuyer, добавляем специфические поля заказа
-export interface IOrderData extends IBuyer {
-    total: number;
-    items: string[];
+// Заказ
+export interface IOrder extends IBuyer {
+  items: string[];
+  total: number;
 }
 
+// Результат заказа
 export interface IOrderResult {
-    id: string;
-    total: number;
+  id: string;
+  total: number;
 }
 
+// Валидация
 export type ValidationErrors = Partial<Record<keyof IBuyer, string>>;

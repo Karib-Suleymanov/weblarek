@@ -1,68 +1,66 @@
 import { IProduct } from "../../types";
-
-/**
- * Модель для работы с корзиной
- */
+import { EventEmitter } from "../base/Events";
 
 export class CartModel {
-  private items: IProduct[] = [];
+    items: IProduct[] = [];
+    protected events: EventEmitter;
 
-  constructor() {}
-
-  getItems(): IProduct[] {
-    return [...this.items];
-  }
-
-  /**
-   Защита на случай нарушения
-   */
-  contains(itemId: string): boolean {
-    return this.items.some((item) => item.id === itemId);
-  }
-
-  addItem(item: IProduct): void {
-    if (!item || typeof item !== "object") {
-      throw new Error("Не валидный продукт");
-    }
-    if (!item.id || typeof item.id !== "string") {
-      throw new Error("Не валидный ID");
+    constructor(events: EventEmitter) {
+        this.events = events;
     }
 
-    if (item.price === null) {
-      throw new Error("Товар бесценный)");
+    add(item: IProduct): void {
+        if (!item || typeof item !== "object") {
+            throw new Error("Не валидный продукт");
+        }
+        if (!item.id || typeof item.id !== "string") {
+            throw new Error("Не валидный ID");
+        }
+        if (item.price === null) {
+            throw new Error("Товар бесценный)");
+        }
+
+        if (this.contains(item.id)) {
+            console.warn("Товар уже находится в корзине");
+            return;
+        }
+
+        this.items.push({ ...item });
+        this.events.emit("basket:changed");
     }
 
-    if (this.contains(item.id)) {
-      console.warn("Товар уже находится в корзине");
-      return;
-    }
-    this.items.push({ ...item });
-  }
+    remove(id: string): void {
+        if (!id || typeof id !== "string") {
+            throw new Error("Не валидный ID");
+        }
 
-  removeItem(itemId: string): void {
-    if (!itemId || typeof itemId !== "string") {
-      throw new Error("Не валидный ID");
-    }
+        if (!this.contains(id)) {
+            console.warn("Товар не найден в корзине");
+            return;
+        }
 
-    if (!this.contains(itemId)) {
-      console.warn("Товар не найден в корзине");
-      return;
+        this.items = this.items.filter(item => item.id !== id);
+        this.events.emit("basket:changed");
     }
 
-    this.items = this.items.filter((item) => item.id !== itemId);
-  }
+    clear(): void {
+        this.items = [];
+        this.events.emit("basket:changed");
+    }
 
-  getTotalCount(): number {
-    return this.items.length;
-  }
+    getCount(): number {
+        return this.items.length;
+    }
 
-  getTotalPrice(): number {
-    return this.items.reduce((total, item) => {
-      return total + (item.price || 0);
-    }, 0);
-  }
-  
-  clear(): void {
-    this.items = [];
-  }
+    getTotal(): number {
+        return this.items.reduce((total, item) => total + (item.price || 0), 0);
+    }
+
+    contains(id: string): boolean {
+        return this.items.some(item => item.id === id);
+    }
+
+    getItems(): IProduct[] {
+        return [...this.items];
+    }
 }
