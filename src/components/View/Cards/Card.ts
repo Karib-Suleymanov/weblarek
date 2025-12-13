@@ -2,27 +2,22 @@ import { Component } from "../../base/Component";
 import { ensureElement } from '../../../utils/utils';
 
 export abstract class CardView<T> extends Component<T> {
-    protected _title: HTMLElement;
-    protected _price: HTMLElement;
+    protected titleEl: HTMLElement;
+    protected priceEl: HTMLElement;
 
     protected constructor(container: HTMLElement) {
         super(container);
         
         // Ищем элементы внутри контейнера карточки
-        this._title = ensureElement<HTMLElement>('.card__title', container);
-        this._price = ensureElement<HTMLElement>('.card__price', container);
+        this.titleEl = ensureElement<HTMLElement>('.card__title', container);
+        this.priceEl = ensureElement<HTMLElement>('.card__price', container);
     }
-
 
     set title(value: string) {
-        this._title.textContent = value;
+        this.titleEl.textContent = value;
     }
 
-    set price(value: number | null){
-        if (value === null) {
-            this._price.textContent = "Бесценно";
-        } else {
-            this._price.textContent = `${value} синапсов`;
-        }
+    set price(value: number | null) {
+        this.priceEl.textContent = value === null ? "Бесценно" : `${value} синапсов`;
     }
 }

@@ -15,31 +15,31 @@ interface ICardPreviewData {
 }
 
 export class CardPreviewView extends CardView<ICardPreviewData> {
-    protected _category: HTMLElement;
-    protected _image: HTMLImageElement;
-    protected _description: HTMLElement;
-    protected _button: HTMLButtonElement;
+    protected categoryEl: HTMLElement;
+    protected imageEl: HTMLImageElement;
+    protected descriptionEl: HTMLElement;
+    protected buttonEl: HTMLButtonElement;
 
     constructor(container: HTMLElement, actions?: ICardPreviewActions) {
         super(container);
 
-        this._category = ensureElement<HTMLElement>(".card__category", container);
-        this._image = ensureElement<HTMLImageElement>(".card__image", container);
-        this._description = ensureElement<HTMLElement>(".card__text", container);
-        this._button = ensureElement<HTMLButtonElement>(".card__button", container);
+        this.categoryEl = ensureElement<HTMLElement>(".card__category", container);
+        this.imageEl = ensureElement<HTMLImageElement>(".card__image", container);
+        this.descriptionEl = ensureElement<HTMLElement>(".card__text", container);
+        this.buttonEl = ensureElement<HTMLButtonElement>(".card__button", container);
 
         if (actions?.onToggle) {
-            this._button.addEventListener("click", () => {
+            this.buttonEl.addEventListener("click", () => {
                 actions.onToggle!();
             });
         }
     }
 
     set category(value: string) {
-        this._category.textContent = value;
+        this.categoryEl.textContent = value;
 
         for (const key in categoryMap) {
-            this._category.classList.toggle(
+            this.categoryEl.classList.toggle(
                 categoryMap[key as CategoryKey],
                 key == value,
             );
@@ -47,12 +47,11 @@ export class CardPreviewView extends CardView<ICardPreviewData> {
     }
 
     set image(value: string) {
-        console.log(value);
-        this.setImage(this._image, value);
+        this.setImage(this.imageEl, value);
     }
 
     set description(value: string) {
-        this._description.textContent = value;
+        this.descriptionEl.textContent = value;
     }
 
     set item(item: Partial<IProduct>) {
@@ -62,14 +61,10 @@ export class CardPreviewView extends CardView<ICardPreviewData> {
         this.price = item.price!;
         this.title = item.title!;
 
-        if (item.price === null) {
-            this._button.disabled = true;
-        } else {
-            this._button.disabled = false;
-        }
+        this.buttonEl.disabled = item.price === null;
     }
 
     set buttonText(buttonText: string) {
-        this._button.textContent = buttonText;
+        this.buttonEl.textContent = buttonText;
     }
 }

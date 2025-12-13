@@ -1,12 +1,11 @@
 import { ensureElement } from '../../../utils/utils';
 import { IEvents } from '../../base/Events';
-import { TContactsErrors } from '../../Models/User';
 import { Form } from './Form';
 
 interface IContactsFormData {
     email: string;
     phone: string;
-    errors: TContactsErrors;
+    errors: Partial<Record<'email' | 'phone', string>>;
 }
 
 export class ContactsFormView extends Form<IContactsFormData> {
@@ -18,36 +17,33 @@ export class ContactsFormView extends Form<IContactsFormData> {
 
         this.emailInput = ensureElement<HTMLInputElement>(
             'input[name="email"]',
-            this.container,
+            this.container
         );
         this.phoneInput = ensureElement<HTMLInputElement>(
             'input[name="phone"]',
-            this.container,
+            this.container
         );
 
-        this.emailInput.addEventListener("input", () =>
-            this.events.emit("contacts:update", { email: this.emailInput.value })
+        this.emailInput.addEventListener('input', () =>
+            this.events.emit('contacts:update', { email: this.emailInput.value })
         );
-        this.phoneInput.addEventListener("input", () =>
-            this.events.emit("contacts:update", { phone: this.phoneInput.value })
+
+        this.phoneInput.addEventListener('input', () =>
+            this.events.emit('contacts:update', { phone: this.phoneInput.value })
         );
-        
-        this.container.addEventListener("submit", (e) => {
+
+        this.container.addEventListener('submit', (e) => {
             e.preventDefault();
-            this.events.emit("contacts:submit");
+            this.events.emit('contacts:submit');
         });
     }
 
     set email(value: string) {
-        this.emailInput.value = value ?? "";
+        this.emailInput.value = value ?? '';
     }
 
     set phone(value: string) {
-        this.phoneInput.value = value ?? "";
-    }
-
-    set errors(value: TContactsErrors) {
-        super.errors = value;
+        this.phoneInput.value = value ?? '';
     }
 
     protected getData(): IContactsFormData {
@@ -64,8 +60,8 @@ export class ContactsFormView extends Form<IContactsFormData> {
     }
 
     clear(): void {
-        this.email = "";
-        this.phone = "";
+        this.email = '';
+        this.phone = '';
         this.errors = {};
     }
 }

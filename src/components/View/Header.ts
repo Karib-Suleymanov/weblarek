@@ -6,21 +6,21 @@ export interface IHeaderActions {
 }
 
 export class HeaderView extends Component<{ counter: number }> {
-    protected _counter: HTMLElement;
-    protected _basket: HTMLButtonElement;
+    protected counterEl: HTMLElement;
+    protected basketBtn: HTMLButtonElement;
 
     constructor(container: HTMLElement, actions?: IHeaderActions) {
         super(container);
         
-        this._counter = ensureElement<HTMLElement>('.header__basket-counter', container);
-        this._basket = ensureElement<HTMLButtonElement>('.header__basket', container);
+        this.counterEl = ensureElement<HTMLElement>('.header__basket-counter', container);
+        this.basketBtn = ensureElement<HTMLButtonElement>('.header__basket', container);
 
         if (actions?.onBasketClick) {
-            this._basket.addEventListener('click', actions.onBasketClick);
+            this.basketBtn.addEventListener('click', actions.onBasketClick);
         }
     }
 
     set counter(value: number) {
-        this._counter.textContent = String(value);
+        this.counterEl.textContent = String(value);
     }
 }

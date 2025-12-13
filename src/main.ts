@@ -6,7 +6,7 @@ import { API_URL } from './utils/constants';
 import { ApiService } from './components/ApiService';
 
 import { CatalogProducts } from './components/Models/ProductsModel';
-import { CartModel } from './components/Models/CartModel'; // <-- новый импорт
+import { CartModel } from './components/Models/CartModel'; 
 import { User } from './components/Models/User';
 
 import { GalleryView } from './components/View/Gallery';
@@ -26,13 +26,13 @@ import { apiProducts } from './utils/data';
 
 export const events = new EventEmitter();
 
-// === Инициализация моделей ===
+// === Модели ===
 const catalog = new CatalogProducts(events);
-const basket = new CartModel(events); // <-- инициализация с новым классом
+const basket = new CartModel(events);
 const user = new User(events);
 const apiService = new ApiService(new Api(API_URL));
 
-// === Получение шаблонов ===
+// === Шаблоны ===
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>("#card-catalog");
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>("#card-preview");
 const basketTemplate = ensureElement<HTMLTemplateElement>("#basket");
@@ -41,27 +41,18 @@ const orderTemplate = ensureElement<HTMLTemplateElement>("#order");
 const contactsTemplate = ensureElement<HTMLTemplateElement>("#contacts");
 const successTemplate = ensureElement<HTMLTemplateElement>("#success");
 
-// === Views ===
-const modalView = new ModalView(ensureElement<HTMLElement>("#modal-container"), {
-    onClose: () => events.emit("modal:close"),
-});
-
-const basketView = new BasketView(cloneTemplate(basketTemplate), {
-    onCheckout: () => events.emit("basket:checkout"),
-});
-
-const headerView = new HeaderView(ensureElement<HTMLElement>(".header"), {
-    onBasketClick: () => events.emit("basket:open"),
-});
-
+// === Статичные компоненты (создаём один раз) ===
+const modalView = new ModalView(ensureElement<HTMLElement>("#modal-container"), { onClose: () => events.emit("modal:close") });
+const basketView = new BasketView(cloneTemplate(basketTemplate), { onCheckout: () => events.emit("basket:checkout") });
+const headerView = new HeaderView(ensureElement<HTMLElement>(".header"), { onBasketClick: () => events.emit("basket:open") });
 const galleryView = new GalleryView(ensureElement<HTMLElement>(".gallery"), events);
 const orderFormView = new OrderFormView(cloneTemplate(orderTemplate), events);
 const contactsFormView = new ContactsFormView(cloneTemplate(contactsTemplate), events);
+const orderSuccessView = new OrderSuccessView(cloneTemplate(successTemplate), { onClose: () => modalView.close() });
 
 // === Инициализация каталога ===
-apiService
-    .getProductList()
-    .then((products) => catalog.setItems(products))
+apiService.getProductList()
+    .then(products => catalog.setItems(products))
     .catch(() => {
         console.warn("[API] Используем локальные товары как fallback");
         catalog.setItems(apiProducts.items);
@@ -108,6 +99,12 @@ events.on("basket:changed", () => {
     });
 
     basketView.render({ items, total: basket.getTotal() });
+
+    // Если модалка открыта и показывается корзина, обновляем содержимое
+    if (modalView.isOpen && modalView.currentContent === basketView.render()) {
+    modalView.content = basketView.render();
+    }
+
 });
 
 // Обновление формы заказа
@@ -129,12 +126,10 @@ events.on("contacts:updated", () => {
 
 // События выбора и покупки товара
 events.on("card:select", (item: IProduct) => catalog.setSelectedItem(item));
-
 events.on("card:buy", (item: IProduct) => {
     if (basket.contains(item.id)) basket.remove(item.id);
     else basket.add(item);
 });
-
 events.on("basket:remove", (item: IProduct) => basket.remove(item.id));
 events.on("basket:open", () => {
     modalView.content = basketView.render();
@@ -176,8 +171,9 @@ events.on("contacts:submit", () => {
 
     apiService.submitOrder(order)
         .then((result: IOrderResult) => {
-            const success = new OrderSuccessView(cloneTemplate(successTemplate), { onClose: () => modalView.close() });
-            modalView.content = success.render({ total: result.total });
+            // Используем уже созданный экземпляр
+            orderSuccessView.total = result.total;
+            modalView.content = orderSuccessView.render();
 
             basket.clear();
             user.clear();

@@ -11,30 +11,29 @@ interface IBasketData {
 }
 
 export class BasketView extends Component<IBasketData> {
-    protected _list: HTMLUListElement;
-    protected _total: HTMLElement;
-    protected _button: HTMLButtonElement;
+    protected listEl: HTMLUListElement;
+    protected totalEl: HTMLElement;
+    protected buttonEl: HTMLButtonElement;
 
     constructor(container: HTMLElement, actions?: IBasketActions) {
         super(container);
         
-        this._list = ensureElement<HTMLUListElement>('.basket__list', container);
-        this._total = ensureElement<HTMLElement>('.basket__price', container);
-        this._button = ensureElement<HTMLButtonElement>('.basket__button', container);
-        this._button.disabled = true;
+        this.listEl = ensureElement<HTMLUListElement>('.basket__list', container);
+        this.totalEl = ensureElement<HTMLElement>('.basket__price', container);
+        this.buttonEl = ensureElement<HTMLButtonElement>('.basket__button', container);
+        this.buttonEl.disabled = true;
 
         if (actions?.onCheckout) {
-            this._button.addEventListener('click', actions.onCheckout);
+            this.buttonEl.addEventListener('click', actions.onCheckout);
         }
-
     }
 
     set items(items: HTMLElement[]) {
-        this._list.replaceChildren(...items);
-        this._button.disabled = items.length == 0;
+        this.listEl.replaceChildren(...items);
+        this.buttonEl.disabled = items.length === 0;
     }
 
     set total(total: number) {
-        this._total.textContent = `${total} синапсов`;
+        this.totalEl.textContent = `${total} синапсов`;
     }
 }

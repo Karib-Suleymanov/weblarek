@@ -8,14 +8,14 @@ export interface ICardActions {
 }
 
 export class CardCatalogView extends CardView<IProduct> {
-    protected _image: HTMLImageElement;
-    protected _category: HTMLElement;
+    protected imageEl: HTMLImageElement;
+    protected categoryEl: HTMLElement;
 
     constructor(container: HTMLElement, actions?: ICardActions) {
         super(container);
         
-        this._image = ensureElement<HTMLImageElement>('.card__image', container);
-        this._category = ensureElement<HTMLElement>('.card__category', container);
+        this.imageEl = ensureElement<HTMLImageElement>('.card__image', container);
+        this.categoryEl = ensureElement<HTMLElement>('.card__category', container);
 
         if (actions?.onClick) {
             container.addEventListener('click', actions.onClick);
@@ -23,17 +23,16 @@ export class CardCatalogView extends CardView<IProduct> {
     }
 
     set image(value: string) {
-        this.setImage(this._image, value);
+        this.setImage(this.imageEl, value);
     }
 
     set category(value: string) {
-        this._category.textContent = value;
-        
+        this.categoryEl.textContent = value;
 
-        this._category.className = 'card__category';
+        this.categoryEl.className = 'card__category';
         const categoryClass = categoryMap[value as keyof typeof categoryMap];
         if (categoryClass) {
-            this._category.classList.add(categoryClass);
+            this.categoryEl.classList.add(categoryClass);
         }
     }
 }
