@@ -36,11 +36,6 @@ export class ContactsFormView extends Form<IContactsFormData> {
                 phone: this.phoneInput.value,
             });
         });
-
-        this.container.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.events.emit('contacts:submit');
-        });
     }
 
     set email(value: string) {

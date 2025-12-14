@@ -41,11 +41,6 @@ export class OrderFormView extends Form<IOrderFormData> {
         this.addressInput.addEventListener('input', () =>
             this.events.emit('order:update', { address: this.addressInput.value })
         );
-
-        this.container.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.events.emit('order:submit');
-        });
     }
 
     set payment(value: TPayment | undefined) {
